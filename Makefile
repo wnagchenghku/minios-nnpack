@@ -112,6 +112,7 @@ src-y += console/console.c
 src-y += console/xencons_ring.c
 src-$(CONFIG_CONSFRONT) += console/xenbus.c
 
+src-y += glue.c
 # NNPACK
 src-y += NNPACK/src/init.c
 src-y += NNPACK/src/convolution-inference.c
