@@ -2,6 +2,7 @@
 
 #include <math.h>
 
+#include <assert.h>
 static inline float signbit_mini(float data)
 {
 	assert(0);

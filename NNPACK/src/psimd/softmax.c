@@ -9,6 +9,7 @@
 #include <psimd.h>
 #include <psimd/exp.h>
 
+#include <assert.h>
 static float expf_mini(float v)
 {
 	assert(0);
