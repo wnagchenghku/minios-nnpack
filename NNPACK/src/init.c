@@ -4,7 +4,7 @@
 
 #include <pthread.h>
 
-//#include <cpuinfo.h>
+#include <cpuinfo.h>
 
 #include <nnpack.h>
 #include <nnpack/hwinfo.h>
@@ -13,18 +13,10 @@
 #include <nnpack/relu.h>
 #include <nnpack/softmax.h>
 
+#include <cpuid.h>
+
 struct hardware_info nnp_hwinfo = { };
 static pthread_once_t hwinfo_init_control = PTHREAD_ONCE_INIT;
-
-/* Identify architecture and define corresponding macro */
-
-#if defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__) || defined(_M_IX86)
-	#define CPUINFO_ARCH_X86 1
-#endif
-
-#if defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || defined(_M_AMD64)
-	#define CPUINFO_ARCH_X86_64 1
-#endif
 
 #if (CPUINFO_ARCH_X86 || CPUINFO_ARCH_X86_64) && !defined(__ANDROID__)
 /*	static void init_x86_hwinfo(void) {

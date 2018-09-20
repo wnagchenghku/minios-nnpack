@@ -100,6 +100,7 @@ endif
 
 DEF_CPPFLAGS += -I $(MINIOS_ROOT)/NNPACK/include
 DEF_CPPFLAGS += -I $(MINIOS_ROOT)/NNPACK/src
+DEF_CPPFLAGS += -I $(MINIOS_ROOT)/NNPACK/deps/cpuinfo/include
 DEF_CPPFLAGS += -I $(MINIOS_ROOT)/NNPACK/deps/pthreadpool/include
 DEF_CPPFLAGS += -I $(MINIOS_ROOT)/NNPACK/deps/fxdiv/include
 DEF_CPPFLAGS += -I $(MINIOS_ROOT)/NNPACK/deps/psimd/include
