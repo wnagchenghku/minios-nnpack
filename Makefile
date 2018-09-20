@@ -114,6 +114,7 @@ src-$(CONFIG_CONSFRONT) += console/xenbus.c
 
 src-y += glue.c
 # NNPACK
+src-y += NNPACK/deps/pthreadpool/src/threadpool-pthreads.c
 src-y += NNPACK/src/init.c
 src-y += NNPACK/src/convolution-inference.c
 src-y += NNPACK/src/fully-connected-inference.c
