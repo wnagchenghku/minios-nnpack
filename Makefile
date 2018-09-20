@@ -207,6 +207,20 @@ ifneq ($(APP_OBJS),)
 APP_O=$(OBJ_DIR)/$(TARGET)_app.o 
 endif
 
+AVX_OBJS := NNPACK/build/src/x86_64-fma/2d-fourier-8x8.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/2d-fourier-16x16.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/2d-winograd-8x8-3x3.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/s8gemm.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/c8gemm.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/s4c6gemm.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/conv1x1.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/sgemm.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/max-pooling.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/relu.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/softmax.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/sdotxf.py.o
+AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/shdotxf.py.o
+
 NEWS_OBJS := squeezenet1_0.a
 
 $(OBJ_DIR)/$(TARGET): $(OBJS) $(APP_O) arch_lib
