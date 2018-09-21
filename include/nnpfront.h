@@ -7,6 +7,12 @@
 #include <xen/xen.h>
 #include <xen/io/xenbus.h>
 
+struct frontend_param
+{
+	char* param_name;
+	int param_size;
+};
+
 void init_nnpfront(void);
 
 void shutdown_nnpfront(void);
