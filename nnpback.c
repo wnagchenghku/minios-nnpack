@@ -68,7 +68,7 @@ static int parse_eventstr(const char* evstr, domid_t* domid, char* model)
 
       sscanf(value, "%s", model);
       free(value);
-      if (strcmp(model, "closed")) {
+      if (strcmp(model, "close")) {
          return EV_CLOSEFE;
       }
       return EV_NEWFE;

@@ -179,6 +179,9 @@ void _exit(int ret)
         ((void((*)(void)))__DTOR_LIST__[i]) ();
     close_all_files();
     __libc_fini_array();
+
+    shutdown_nnpfront();
+
     printk("main returned %d\n", ret);
 #if defined(HAVE_LWIP) && defined(CONFIG_NETFRONT)
     stop_networking();

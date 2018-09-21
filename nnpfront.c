@@ -34,6 +34,7 @@ static inline size_t divide_round_up(size_t dividend, size_t divisor) {
    }
 }
 
+domid_t self_id;
 float * page;
 void init_nnpfront(void)
 {
@@ -47,6 +48,8 @@ void init_nnpfront(void)
    char entry_path[64];
    grant_ref_t *grant_ref;
    int v, bytesread;
+   
+   self_id = xenbus_get_self_id();
 
    printk("============= Init NNP Front ================\n");
 
@@ -62,7 +65,7 @@ void init_nnpfront(void)
    free(value);
    bedomid = ival;
 
-   snprintf(path, 512, "%u", xenbus_get_self_id());
+   snprintf(path, 512, "%u", self_id);
    model = "squeezenet1_0";
 
    if((err = xenbus_printf(XBT_NIL, "/local/domain/frontend", path, "%s", model))) {
@@ -70,7 +73,7 @@ void init_nnpfront(void)
       free(err);
    }
 
-   snprintf(path, 512, "/local/domain/backend/%d/state", xenbus_get_self_id());
+   snprintf(path, 512, "/local/domain/backend/%d/state", self_id);
    /*Setup the watch to wait for the backend */
    if((err = xenbus_watch_path_token(XBT_NIL, path, path, &events))) {
       NNPFRONT_ERR("Could not set a watch on %s, error was %s\n", path, err);
@@ -95,7 +98,7 @@ void init_nnpfront(void)
    grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
 
    for (i = 0; i < divide_round_up(total_page, 128); ++i) {
-      snprintf(entry_path, 64, "/local/domain/backend/%d/grant-ref%d", xenbus_get_self_id(), i);
+      snprintf(entry_path, 64, "/local/domain/backend/%d/grant-ref%d", self_id, i);
       if((err = xenbus_read(XBT_NIL, entry_path, &entry_value))) {
          NNPFRONT_ERR("Unable to read %s during tpmfront initialization! error = %s\n", entry_path, err);
          free(err);
@@ -114,6 +117,17 @@ void init_nnpfront(void)
 
    free(grant_ref);
    NNPFRONT_LOG("Initialization Completed successfully\n");
+}
+
+void shutdown_nnpfront(void)
+{
+   char *err;
+   char path[512];
+   snprintf(path, 512, "/local/domain/frontend/%u", self_id);
+   if((err = xenbus_write(XBT_NIL, path, "close"))) {
+      NNPFRONT_ERR("Unable to write to xenstore closing state\n");
+      free(err);
+   }
 }
 
 static int param_it;
