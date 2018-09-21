@@ -35,6 +35,7 @@ static inline size_t divide_round_up(size_t dividend, size_t divisor) {
 }
 
 domid_t self_id;
+char *model = "squeezenet1_0";
 int total_page;
 float *page;
 void init_nnpfront(void)
@@ -43,7 +44,7 @@ void init_nnpfront(void)
    char* value, *err;
    unsigned long long ival;
    uint32_t bedomid;
-   char *model, *entry_value, *value_it;
+   char *entry_value, *value_it;
    xenbus_event_queue events = NULL;
    int total_item, total_bytes, i, j = 0;
    char entry_path[64];
@@ -67,7 +68,6 @@ void init_nnpfront(void)
    bedomid = ival;
 
    snprintf(path, 512, "%u", self_id);
-   model = "squeezenet1_0";
 
    if((err = xenbus_printf(XBT_NIL, "/local/domain/frontend", path, "%s", model))) {
       NNPFRONT_ERR("Unable to write to xenstore frontend id\n");
@@ -89,13 +89,14 @@ void init_nnpfront(void)
        xenbus_wait_for_watch(&events);
    }
 
-   total_item = sizeof(P4C8732DB_frontend) / sizeof(struct frontend_param);
-   total_bytes = 0;
-   for (i = 0; i < total_item; ++i)
-      total_bytes += P4C8732DB_frontend[i].param_size * sizeof(float);
-
+   if (strcmp(model, "squeezenet1_0") == 0) {
+      total_item = sizeof(P4C8732DB_frontend) / sizeof(struct frontend_param);
+      total_bytes = 0;
+      for (i = 0; i < total_item; ++i)
+         total_bytes += P4C8732DB_frontend[i].param_size * sizeof(float);
+   }
    total_page = divide_round_up(total_bytes, PAGE_SIZE);
-
+   
    grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
 
    for (i = 0; i < divide_round_up(total_page, 128); ++i) {
@@ -141,7 +142,8 @@ float *resolve_param_cb(void)
       return page;
    }
    
-   param_read += P4C8732DB_frontend[param_it++].param_size;
+   if (strcmp(model, "squeezenet1_0") == 0)
+      param_read += P4C8732DB_frontend[param_it++].param_size;
 
    return page + param_read;
 }
