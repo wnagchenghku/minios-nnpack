@@ -9,8 +9,8 @@
 #include <mini-os/posix/sys/mman.h>
 #include <mini-os/nnpfront.h>
 
-#include <mini-os/4C8732DB_front.h> // squeezenet1_0
-#include <mini-os/2D24C20E_front.h> // resnet18
+#include <mini-os/4C8732DB_frontend.h> // squeezenet1_0
+#include <mini-os/2D24C20E_frontend.h> // resnet18
 
 #define NNPFRONT_PRINT_DEBUG
 #ifdef NNPFRONT_PRINT_DEBUG
