@@ -117,6 +117,7 @@ void handle_backend_event(char* evstr) {
    char entry_path[64], entry_value[1024];
    char state_path[64], state_value[8];
    grant_ref_t *grant_ref;
+   void *page;
 
    struct timeval start, end;
    unsigned long e_usec;
@@ -133,13 +134,15 @@ void handle_backend_event(char* evstr) {
          free(err);
       }
 
+      total_bytes = 0;
       if (strcmp("squeezenet1_0", model) == 0) {
          total_item = sizeof(P4C8732DB_backend) / sizeof(struct backend_param);
-         total_bytes = 0;
          for (i = 0; i < total_item; ++i)
             total_bytes += P4C8732DB_backend[i].param_size * sizeof(float);
+      }
+      total_page = divide_round_up(total_bytes, PAGE_SIZE);
 
-         total_page = divide_round_up(total_bytes, PAGE_SIZE);
+      if (strcmp("squeezenet1_0", model) == 0) {
          if (squeezenet1_0_page == NULL) {
             squeezenet1_0_page = (float*)alloc_pages(log2(round_up_power_of_two(total_page)));
 
@@ -147,39 +150,40 @@ void handle_backend_event(char* evstr) {
                for (j = 0; j < P4C8732DB_backend[i].param_size; ++j)
                   *(squeezenet1_0_page + k++) = *(P4C8732DB_backend[i].param_ptr + j);
          }
+         page = (void*)squeezenet1_0_page;
+      }
 
-         grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
+      grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
 
-         gettimeofday(&start, 0);
-         for (i = 0; i < total_page; ++i) {
-            grant_ref[i] = gnttab_grant_access(domid, virt_to_mfn((uintptr_t)(void*)squeezenet1_0_page + i * PAGE_SIZE), 0);
-         }
-         gettimeofday(&end, 0);
-         e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
-         NNPBACK_LOG("Publishing grant references takes %lu microseconds\n", e_usec);
+      gettimeofday(&start, 0);
+      for (i = 0; i < total_page; ++i) {
+         grant_ref[i] = gnttab_grant_access(domid, virt_to_mfn((uintptr_t)page + i * PAGE_SIZE), 0);
+      }
+      gettimeofday(&end, 0);
+      e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
+      NNPBACK_LOG("Publishing grant references takes %lu microseconds\n", e_usec);
 
-         k = 0;
-         snprintf(entry_value, 1024, "%s", "");
-         for (i = 0; i < total_page / 128; ++i) {
-            for (j = 0; j < 128; ++j)
-               snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", (unsigned long) grant_ref[k++]);
-            
-            snprintf(entry_path, 64, "%s/grant-ref%d", frontend_path, i);
-            if((err = xenbus_write(XBT_NIL, entry_path, entry_value))) {
-               NNPBACK_ERR("Unable to write ring-ref, error was %s\n", err);
-               free(err);
-            }
-            snprintf(entry_value, 1024, "%s", "");
-         }
+      k = 0;
+      snprintf(entry_value, 1024, "%s", "");
+      for (i = 0; i < total_page / 128; ++i) {
+         for (j = 0; j < 128; ++j)
+            snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", (unsigned long) grant_ref[k++]);
 
-         for (; k < total_page; ) {
-               snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", (unsigned long) grant_ref[k++]);
-         }
          snprintf(entry_path, 64, "%s/grant-ref%d", frontend_path, i);
          if((err = xenbus_write(XBT_NIL, entry_path, entry_value))) {
             NNPBACK_ERR("Unable to write ring-ref, error was %s\n", err);
             free(err);
          }
+         snprintf(entry_value, 1024, "%s", "");
+      }
+
+      for (; k < total_page; ) {
+         snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", (unsigned long) grant_ref[k++]);
+      }
+      snprintf(entry_path, 64, "%s/grant-ref%d", frontend_path, i);
+      if((err = xenbus_write(XBT_NIL, entry_path, entry_value))) {
+         NNPBACK_ERR("Unable to write ring-ref, error was %s\n", err);
+         free(err);
       }
 
       snprintf(state_path, 64, "%s/state", frontend_path);

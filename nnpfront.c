@@ -89,11 +89,15 @@ void init_nnpfront(void)
        xenbus_wait_for_watch(&events);
    }
 
+   total_bytes = 0;
    if (strcmp(model, "squeezenet1_0") == 0) {
       total_item = sizeof(P4C8732DB_frontend) / sizeof(struct frontend_param);
-      total_bytes = 0;
       for (i = 0; i < total_item; ++i)
          total_bytes += P4C8732DB_frontend[i].param_size * sizeof(float);
+   } else if (strcmp(model, "resnet18") == 0) {
+      total_item = sizeof(P2D24C20E_frontend) / sizeof(struct frontend_param);
+      for (i = 0; i < total_item; ++i)
+         total_bytes += P2D24C20E_frontend[i].param_size * sizeof(float);
    }
    total_page = divide_round_up(total_bytes, PAGE_SIZE);
    
@@ -144,6 +148,8 @@ float *resolve_param_cb(void)
    
    if (strcmp(model, "squeezenet1_0") == 0)
       param_read += P4C8732DB_frontend[param_it++].param_size;
+   else if (strcmp(model, "resnet18") == 0)
+      param_read += P2D24C20E_frontend[param_it++].param_size;
 
    return page + param_read;
 }
