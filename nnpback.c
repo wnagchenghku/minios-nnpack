@@ -13,6 +13,7 @@
 #include <mini-os/posix/sys/mman.h>
 
 #include <mini-os/4C8732DB_backend.h>
+#include <mini-os/utlist.h>
 
 #define NNPBACK_PRINT_DEBUG
 #ifdef NNPBACK_PRINT_DEBUG
@@ -24,13 +25,16 @@
 #define NNPBACK_ERR(fmt,...) printk("Nnpback:Error " fmt, ##__VA_ARGS__)
 #define NNPBACK_LOG(fmt,...) printk("Nnpback:Info " fmt, ##__VA_ARGS__)
 
-struct nnpif {
-   domid_t domid;
+typedef struct el {
+    domid_t domid;
+    grant_ref_t *grant_ref;
+    int total_page;
+    struct el *next, *prev;
+} el;
 
-   /* Shared page */
-   void *page;
-};
-typedef struct nnpif nnpif_t;
+int namecmp(el *a, el *b) {
+    return a->domid == b->domid ? 0 : -1;
+}
 
 struct nnpback_dev {
 
@@ -40,7 +44,7 @@ struct nnpback_dev {
 };
 typedef struct nnpback_dev nnpback_dev_t;
 
-enum { EV_NONE, EV_NEWFE } tpm_ev_enum;
+enum { EV_NONE, EV_NEWFE, EV_CLOSEFE } tpm_ev_enum;
 
 /* Global objects */
 static struct thread* eventthread = NULL;
@@ -61,8 +65,12 @@ static int parse_eventstr(const char* evstr, domid_t* domid, char* model)
          free(err);
          return EV_NONE;
       }
+
       sscanf(value, "%s", model);
       free(value);
+      if (strcmp(model, "closed")) {
+         return EV_CLOSEFE;
+      }
       return EV_NEWFE;
    }
    return EV_NONE;
@@ -97,6 +105,7 @@ unsigned int round_up_power_of_two(unsigned int v) // compute the next highest p
    return v;
 }
 
+el *head = NULL; /* important- initialize to NULL! */
 static float *squeezenet1_0_page = NULL;
 
 void handle_backend_event(char* evstr) {
@@ -111,6 +120,7 @@ void handle_backend_event(char* evstr) {
 
    struct timeval start, end;
    unsigned long e_usec;
+   el *name, *elt, etmp;
 
    NNPBACK_DEBUG("Xenbus Event: %s\n", evstr);
 
@@ -170,7 +180,6 @@ void handle_backend_event(char* evstr) {
             NNPBACK_ERR("Unable to write ring-ref, error was %s\n", err);
             free(err);
          }
-         free(grant_ref);
       }
 
       snprintf(state_path, 64, "%s/state", frontend_path);
@@ -178,7 +187,22 @@ void handle_backend_event(char* evstr) {
       if((err = xenbus_write(XBT_NIL, state_path, state_value))) {
           NNPBACK_ERR("Unable to write state path, error was %s\n", err);
           free(err);
-       }
+      }
+
+      name = (el *)malloc(sizeof *name);
+      name->domid = domid;
+      name->grant_ref = grant_ref;
+      name->total_page = total_page;
+      DL_APPEND(head, name);
+   } else if (event == EV_CLOSEFE) {
+      &etmp.domid = domid;
+      DL_SEARCH(head, elt, &etmp, namecmp);
+      for (i = 0; i < elt->total_page; ++i) {
+         gnttab_end_access(elt->grant_ref[i]);
+      }
+      free(elt->grant_ref);
+      DL_DELETE(head, elt);
+      free(elt);
    }
 }
 
