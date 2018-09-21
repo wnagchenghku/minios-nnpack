@@ -48,7 +48,7 @@
 #endif
 
 
-#define DEFAULT_MAX_GRANTS 5096
+#define DEFAULT_MAX_GRANTS 20384
 
 struct gntmap_entry {
     unsigned long host_addr;
