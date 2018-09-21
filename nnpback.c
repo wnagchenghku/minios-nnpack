@@ -195,7 +195,7 @@ void handle_backend_event(char* evstr) {
       name->total_page = total_page;
       DL_APPEND(head, name);
    } else if (event == EV_CLOSEFE) {
-      &etmp.domid = domid;
+      etmp.domid = domid;
       DL_SEARCH(head, elt, &etmp, namecmp);
       for (i = 0; i < elt->total_page; ++i) {
          gnttab_end_access(elt->grant_ref[i]);
