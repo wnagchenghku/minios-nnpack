@@ -12,7 +12,7 @@
 #include <mini-os/mm.h>
 #include <mini-os/posix/sys/mman.h>
 
-#include <mini-os/nnpbackend.h>
+#include <mini-os/nnpback.h>
 #include <mini-os/utlist.h>
 
 #include <mini-os/4C8732DB_backend.h> // squeezenet1_0
