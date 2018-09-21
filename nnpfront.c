@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <mini-os/posix/sys/mman.h>
 #include <mini-os/4C8732DB_frontend.h>
+#include <mini-os/nnpfront.h>
 
 #define NNPFRONT_PRINT_DEBUG
 #ifdef NNPFRONT_PRINT_DEBUG

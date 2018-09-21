@@ -13,6 +13,7 @@
 #include <mini-os/posix/sys/mman.h>
 
 #include <mini-os/4C8732DB_backend.h>
+#include <mini-os/nnpbackend.h>
 #include <mini-os/utlist.h>
 
 #define NNPBACK_PRINT_DEBUG
