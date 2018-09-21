@@ -284,6 +284,11 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
         }
     }
 
+    for (i = 0; i < count; ++i) {
+        ent = gntmap_find_entry(map, op[i].host_addr);
+        ent->handle = op[i].handle;
+    }
+
     return (void*) addr;
 }
 

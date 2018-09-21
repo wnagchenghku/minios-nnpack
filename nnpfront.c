@@ -35,7 +35,8 @@ static inline size_t divide_round_up(size_t dividend, size_t divisor) {
 }
 
 domid_t self_id;
-float * page;
+int total_page;
+float *page;
 void init_nnpfront(void)
 {
    char path[512];
@@ -44,7 +45,7 @@ void init_nnpfront(void)
    uint32_t bedomid;
    char *model, *entry_value, *value_it;
    xenbus_event_queue events = NULL;
-   int total_item, total_bytes, total_page, i, j = 0;
+   int total_item, total_bytes, i, j = 0;
    char entry_path[64];
    grant_ref_t *grant_ref;
    int v, bytesread;
@@ -121,6 +122,8 @@ void init_nnpfront(void)
 
 void shutdown_nnpfront(void)
 {
+   gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)page, total_page);
+
    char *err;
    char path[512];
    snprintf(path, 512, "/local/domain/frontend/%u", self_id);
@@ -130,16 +133,15 @@ void shutdown_nnpfront(void)
    }
 }
 
-static int param_it;
-
 float *resolve_param_cb(void)
 {
-   static int isFirst = 1;
+   static int isFirst = 1, param_it, param_read;
    if (isFirst) {
       isFirst = 0;
       return page;
    }
    
-   page += P4C8732DB_frontend[param_it++].param_size;
-   return page;
+   param_read += P4C8732DB_frontend[param_it++].param_size;
+
+   return page + param_read;
 }
