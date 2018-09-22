@@ -2,7 +2,7 @@
 #include <mini-os/xenbus.h>
 #include <mini-os/xmalloc.h>
 #include <mini-os/events.h>
-#include <mini-os/gnttab.h>
+#include <mini-os/gntmap.h>
 #include <xen/io/xenbus.h>
 #include <mini-os/lib.h>
 #include <fcntl.h>
@@ -52,7 +52,7 @@ void init_nnpfront(void)
    xenbus_event_queue events = NULL;
    int total_item, total_bytes, i, j = 0;
    char entry_path[64];
-   grant_ref_t *grant_ref;
+   grant_ref_t *grant_ref, *grant_ref_t;
 
    int total_grant_ref_ref_page;
    grant_ref_t* grant_ref_ref_page;
@@ -133,7 +133,7 @@ void init_nnpfront(void)
       NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
    }
 
-   for (int i = 0; i < total_page; ++i)
+   for (i = 0; i < total_page; ++i)
       grant_ref[i++] = grant_ref_ref_page[i++];
 
    gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)grant_ref_ref_page, total_grant_ref_ref_page);

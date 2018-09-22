@@ -205,7 +205,7 @@ void handle_backend_event(char* evstr) {
          grant_ref_ref_page[i] = grant_ref[i];
 
       for (i = 0; i < total_grant_ref_ref_page; ++i)
-         grant_ref_ref[i] = gnttab_grant_access(domid, virt_to_mfn((uintptr_t)(void*)grant_ref_ref_page + i * PAGE_SIZE));
+         grant_ref_ref[i] = gnttab_grant_access(domid, virt_to_mfn((uintptr_t)(void*)grant_ref_ref_page + i * PAGE_SIZE), 0);
 
       snprintf(entry_value, 1024, "%s", "");
       for (i = 0; i < total_grant_ref_ref_page; ++i) {
