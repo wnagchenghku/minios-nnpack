@@ -223,6 +223,7 @@ AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/shdotxf.py.o
 
 NEWS_OBJS := squeezenet1_0.a
 NEWS_OBJS += resnet18.a
+NEWS_OBJS += alexnet.a
 
 $(OBJ_DIR)/$(TARGET): $(OBJS) $(APP_O) arch_lib
 	$(LD) -r $(LDFLAGS) $(HEAD_OBJ) $(APP_O) $(OBJS) $(LDARCHLIB) $(NEWS_OBJS) $(LDLIBS) -o $@.o
