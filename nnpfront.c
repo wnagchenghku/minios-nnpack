@@ -53,10 +53,10 @@ void init_nnpfront(void)
    xenbus_event_queue events = NULL;
    int total_item, total_bytes, i, j = 0;
    char entry_path[64];
-   grant_ref_t *grant_ref, *grant_ref_t;
+   grant_ref_t *grant_ref, *grant_ref_ref;
 
    int total_grant_ref_ref_page;
-   grant_ref_t* grant_ref_ref_page;
+   grant_ref_t *grant_ref_ref_page;
    int v, bytesread;
    
    self_id = xenbus_get_self_id();
