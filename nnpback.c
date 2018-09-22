@@ -198,6 +198,7 @@ void handle_backend_event(char* evstr) {
       NNPBACK_LOG("Publishing grant references takes %lu microseconds\n", e_usec);
 
       total_grant_ref_ref_page = divide_round_up(total_page * sizeof(grant_ref_t), PAGE_SIZE);
+      grant_ref_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_grant_ref_ref_page);
       grant_ref_ref_page = (grant_ref_t*)alloc_pages(log2(round_up_power_of_two(total_grant_ref_ref_page)));
       
       assert(total_grant_ref_ref_page <= 128);
@@ -243,6 +244,7 @@ void handle_backend_event(char* evstr) {
          gnttab_end_access(elt->grant_ref_ref[i]);
       }
       free(elt->grant_ref);
+      free(elt->grant_ref_ref);
       DL_DELETE(head, elt);
       free(elt);
    }
