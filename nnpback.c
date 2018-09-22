@@ -210,7 +210,7 @@ void handle_backend_event(char* evstr) {
 
       snprintf(entry_value, 1024, "%s", "");
       for (i = 0; i < total_grant_ref_ref_page; ++i) {
-            snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", grant_ref_ref[i]);
+            snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", (unsigned long)grant_ref_ref[i]);
       }
 
       snprintf(entry_path, 64, "%s/grant-ref-ref", frontend_path);
