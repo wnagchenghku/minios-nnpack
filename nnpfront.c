@@ -3,6 +3,7 @@
 #include <mini-os/xmalloc.h>
 #include <mini-os/events.h>
 #include <mini-os/gntmap.h>
+#include <mini-os/gnttab.h>
 #include <xen/io/xenbus.h>
 #include <mini-os/lib.h>
 #include <fcntl.h>
@@ -149,10 +150,10 @@ void init_nnpfront(void)
 
 void shutdown_nnpfront(void)
 {
-   gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)page, total_page);
-
    char *err;
    char path[512];
+   gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)page, total_page);
+
    snprintf(path, 512, "/local/domain/frontend/%u", self_id);
    if((err = xenbus_write(XBT_NIL, path, "close"))) {
       NNPFRONT_ERR("Unable to write to xenstore closing state\n");
