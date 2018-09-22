@@ -53,6 +53,9 @@ void init_nnpfront(void)
    int total_item, total_bytes, i, j = 0;
    char entry_path[64];
    grant_ref_t *grant_ref;
+
+   int total_grant_ref_ref_page;
+   grant_ref_t* grant_ref_ref_page;
    int v, bytesread;
    
    self_id = xenbus_get_self_id();
@@ -112,24 +115,34 @@ void init_nnpfront(void)
    
    grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
 
-   for (i = 0; i < divide_round_up(total_page, 128); ++i) {
-      snprintf(entry_path, 64, "/local/domain/backend/%d/grant-ref%d", self_id, i);
-      if((err = xenbus_read(XBT_NIL, entry_path, &entry_value))) {
-         NNPFRONT_ERR("Unable to read %s during tpmfront initialization! error = %s\n", entry_path, err);
-         free(err);
-      }
-      value_it = entry_value;
-      while(sscanf(value_it, "%d%n", &v, &bytesread) > 0) {
-        grant_ref[j++] = v;
-        value_it += bytesread;
-     }
-     free(entry_value);
+   total_grant_ref_ref_page = divide_round_up(total_page * sizeof(grant_ref_t), PAGE_SIZE);
+   grant_ref_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_grant_ref_ref_page);
+
+   snprintf(entry_path, 64, "/local/domain/backend/%d/grant-ref-ref", self_id);
+   if((err = xenbus_read(XBT_NIL, entry_path, &entry_value))) {
+      NNPFRONT_ERR("Unable to read %s during tpmfront initialization! error = %s\n", entry_path, err);
+      free(err);
+   }
+   value_it = entry_value;
+   while(sscanf(value_it, "%d%n", &v, &bytesread) > 0) {
+      grant_ref_ref[j++] = v;
+      value_it += bytesread;
    }
 
+   if ((grant_ref_ref_page = (grant_ref_t*)gntmap_map_grant_refs_batch(&gtpmdev.map, total_grant_ref_ref_page, &bedomid, 0, grant_ref_ref, PROT_READ)) == NULL) {
+      NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
+   }
+
+   for (int i = 0; i < total_page; ++i)
+      grant_ref[i++] = grant_ref_ref_page[i++];
+
+   gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)grant_ref_ref_page, total_grant_ref_ref_page);
+   
    if ((page = gntmap_map_grant_refs_batch(&gtpmdev.map, total_page, &bedomid, 0, grant_ref, PROT_READ)) == NULL) {
       NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
    }
 
+   free(grant_ref_ref);
    free(grant_ref);
    NNPFRONT_LOG("Initialization Completed successfully\n");
 }

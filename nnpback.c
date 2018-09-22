@@ -32,7 +32,9 @@
 typedef struct el {
     domid_t domid;
     grant_ref_t *grant_ref;
+    grant_ref_t *grant_ref_ref;
     int total_page;
+    int total_grant_ref_ref_page;
     struct el *next, *prev;
 } el;
 
@@ -116,11 +118,11 @@ void handle_backend_event(char* evstr) {
    domid_t domid;
    int event;
    char *err;
-   int i, j, k = 0, total_item, total_bytes, total_page;
+   int i, j, k = 0, total_item, total_bytes, total_page, total_grant_ref_ref_page;
    char model[16], frontend_path[32];
    char entry_path[64], entry_value[1024];
    char state_path[64], state_value[8];
-   grant_ref_t *grant_ref;
+   grant_ref_t *grant_ref, *grant_ref_ref;
    void *page;
 
    struct timeval start, end;
@@ -194,24 +196,23 @@ void handle_backend_event(char* evstr) {
       e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
       NNPBACK_LOG("Publishing grant references takes %lu microseconds\n", e_usec);
 
-      k = 0;
+      total_grant_ref_ref_page = divide_round_up(total_page * sizeof(grant_ref_t), PAGE_SIZE);
+      grant_ref_t *grant_ref_ref_page = (grant_ref_t*)alloc_pages(log2(round_up_power_of_two(total_grant_ref_ref_page)));
+      
+      assert(total_grant_ref_ref_page <= 128);
+
+      for (i = 0; i < total_page; ++i)
+         grant_ref_ref_page[i] = grant_ref[i];
+
+      for (i = 0; i < total_grant_ref_ref_page; ++i)
+         grant_ref_ref[i] = gnttab_grant_access(domid, virt_to_mfn((uintptr_t)(void*)grant_ref_ref_page + i * PAGE_SIZE));
+
       snprintf(entry_value, 1024, "%s", "");
-      for (i = 0; i < total_page / 128; ++i) {
-         for (j = 0; j < 128; ++j)
-            snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", (unsigned long) grant_ref[k++]);
-
-         snprintf(entry_path, 64, "%s/grant-ref%d", frontend_path, i);
-         if((err = xenbus_write(XBT_NIL, entry_path, entry_value))) {
-            NNPBACK_ERR("Unable to write ring-ref, error was %s\n", err);
-            free(err);
-         }
-         snprintf(entry_value, 1024, "%s", "");
+      for (i = 0; i < total_grant_ref_ref_page; ++i) {
+            snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", grant_ref_ref[i], 0);
       }
 
-      for (; k < total_page; ) {
-         snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", (unsigned long) grant_ref[k++]);
-      }
-      snprintf(entry_path, 64, "%s/grant-ref%d", frontend_path, i);
+      snprintf(entry_path, 64, "%s/grant-ref-ref", frontend_path);
       if((err = xenbus_write(XBT_NIL, entry_path, entry_value))) {
          NNPBACK_ERR("Unable to write ring-ref, error was %s\n", err);
          free(err);
@@ -227,13 +228,18 @@ void handle_backend_event(char* evstr) {
       name = (el *)malloc(sizeof *name);
       name->domid = domid;
       name->grant_ref = grant_ref;
+      name->grant_ref_ref = grant_ref_ref;
       name->total_page = total_page;
+      name->total_grant_ref_ref_page = total_grant_ref_ref_page;
       DL_APPEND(head, name);
    } else if (event == EV_CLOSEFE) {
       etmp.domid = domid;
       DL_SEARCH(head, elt, &etmp, namecmp);
       for (i = 0; i < elt->total_page; ++i) {
          gnttab_end_access(elt->grant_ref[i]);
+      }
+      for (i = 0; i < elt->total_grant_ref_ref_page; ++i) {
+         gnttab_end_access(elt->grant_ref_ref[i]);
       }
       free(elt->grant_ref);
       DL_DELETE(head, elt);
