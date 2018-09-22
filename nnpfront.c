@@ -11,6 +11,7 @@
 
 #include <mini-os/4C8732DB_frontend.h> // squeezenet1_0
 #include <mini-os/2D24C20E_frontend.h> // resnet18
+#include <mini-os/264993A3_frontend.h> // alexnet
 
 #define NNPFRONT_PRINT_DEBUG
 #ifdef NNPFRONT_PRINT_DEBUG
@@ -101,7 +102,12 @@ void init_nnpfront(void)
       total_item = sizeof(P2D24C20E_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P2D24C20E_frontend[i].param_size * sizeof(float);
+   } else if (strcmp(model, "alexnet") == 0) {
+      total_item = sizeof(P264993A3_frontend) / sizeof(struct frontend_param);
+      for (i = 0; i < total_item; ++i)
+         total_bytes += P264993A3_frontend[i].param_size * sizeof(float);
    }
+
    total_page = divide_round_up(total_bytes, PAGE_SIZE);
    
    grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
@@ -153,6 +159,8 @@ float *resolve_param_cb(void)
       param_read += P4C8732DB_frontend[param_it++].param_size;
    else if (strcmp(model, "resnet18") == 0)
       param_read += P2D24C20E_frontend[param_it++].param_size;
+   else if (strcmp(model, "alexnet") == 0)
+      param_read += P264993A3_frontend[param_it++].param_size;
 
    return page + param_read;
 }

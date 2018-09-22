@@ -17,6 +17,7 @@
 
 #include <mini-os/4C8732DB_backend.h> // squeezenet1_0
 #include <mini-os/2D24C20E_backend.h> // resnet18
+#include <mini-os/264993A3_backend.h> // alexnet
 
 #define NNPBACK_PRINT_DEBUG
 #ifdef NNPBACK_PRINT_DEBUG
@@ -109,7 +110,7 @@ unsigned int round_up_power_of_two(unsigned int v) // compute the next highest p
 }
 
 el *head = NULL; /* important- initialize to NULL! */
-static float *squeezenet1_0_page = NULL, *resnet18_page = NULL;
+static float *squeezenet1_0_page = NULL, *resnet18_page = NULL, *alexnet_page = NULL;
 
 void handle_backend_event(char* evstr) {
    domid_t domid;
@@ -146,7 +147,12 @@ void handle_backend_event(char* evstr) {
          total_item = sizeof(P2D24C20E_backend) / sizeof(struct backend_param);
          for (i = 0; i < total_item; ++i)
             total_bytes += P2D24C20E_backend[i].param_size * sizeof(float);
+      } else if (strcmp("alexnet", model) == 0) {
+         total_item = sizeof(P264993A3_backend) / sizeof(struct backend_param);
+         for (i = 0; i < total_item; ++i)
+            total_bytes += P264993A3_backend[i].param_size * sizeof(float);
       }
+
       total_page = divide_round_up(total_bytes, PAGE_SIZE);
 
       if (strcmp("squeezenet1_0", model) == 0) {
@@ -167,6 +173,15 @@ void handle_backend_event(char* evstr) {
                   *(resnet18_page + k++) = *(P2D24C20E_backend[i].param_ptr + j);
          }
          page = (void*)resnet18_page;
+      } else if (strcmp("alexnet", model) == 0) {
+         if (alexnet_page == NULL) {
+            alexnet_page = (float*)alloc_pages(log2(round_up_power_of_two(total_page)));
+
+            for (i = 0; i < total_item; ++i)
+               for (j = 0; j < P264993A3_backend[i].param_size; ++j)
+                  *(alexnet_page + k++) = *(P264993A3_backend[i].param_ptr + j);
+         }
+         page = (void*)alexnet_page;
       }
 
       grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
