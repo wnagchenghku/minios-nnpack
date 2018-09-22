@@ -124,6 +124,7 @@ void handle_backend_event(char* evstr) {
    char state_path[64], state_value[8];
    grant_ref_t *grant_ref, *grant_ref_ref;
    void *page;
+   grant_ref_t *grant_ref_ref_page;
 
    struct timeval start, end;
    unsigned long e_usec;
@@ -197,7 +198,7 @@ void handle_backend_event(char* evstr) {
       NNPBACK_LOG("Publishing grant references takes %lu microseconds\n", e_usec);
 
       total_grant_ref_ref_page = divide_round_up(total_page * sizeof(grant_ref_t), PAGE_SIZE);
-      grant_ref_t *grant_ref_ref_page = (grant_ref_t*)alloc_pages(log2(round_up_power_of_two(total_grant_ref_ref_page)));
+      grant_ref_ref_page = (grant_ref_t*)alloc_pages(log2(round_up_power_of_two(total_grant_ref_ref_page)));
       
       assert(total_grant_ref_ref_page <= 128);
 
@@ -209,7 +210,7 @@ void handle_backend_event(char* evstr) {
 
       snprintf(entry_value, 1024, "%s", "");
       for (i = 0; i < total_grant_ref_ref_page; ++i) {
-            snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", grant_ref_ref[i], 0);
+            snprintf(entry_value + strlen(entry_value), 1024 - strlen(entry_value), "%lu ", grant_ref_ref[i]);
       }
 
       snprintf(entry_path, 64, "%s/grant-ref-ref", frontend_path);

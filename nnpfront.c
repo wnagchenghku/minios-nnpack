@@ -135,7 +135,7 @@ void init_nnpfront(void)
    }
 
    for (i = 0; i < total_page; ++i)
-      grant_ref[i++] = grant_ref_ref_page[i++];
+      grant_ref[i] = grant_ref_ref_page[i];
 
    gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)grant_ref_ref_page, total_grant_ref_ref_page);
    
