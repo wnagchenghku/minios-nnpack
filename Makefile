@@ -135,6 +135,9 @@ src-y += NNPACK/src/psimd/softmax.c
 src-y += NNPACK/src/psimd/blas/sdotxf.c
 src-y += NNPACK/src/psimd/blas/shdotxf.c
 
+## NNPACK AVX
+src-y += NNPACK/src/x86_64-fma/softmax.c
+
 # The common mini-os objects to build.
 APP_OBJS :=
 OBJS := $(patsubst %.c,$(OBJ_DIR)/%.o,$(src-y))
@@ -208,6 +211,9 @@ APP_O=$(OBJ_DIR)/$(TARGET)_app.o
 endif
 
 AVX_OBJS := NNPACK/build/src/x86_64-fma/2d-fourier-8x8.py.o
+./extras/mini-os/NNPACK/build/CMakeFiles/nnpack.dir/src/x86_64-fma/softmax.c.o
+
+AVX_OBJS := NNPACK/build/src/x86_64-fma/2d-fourier-8x8.py.o
 AVX_OBJS += NNPACK/build/src/x86_64-fma/2d-fourier-16x16.py.o
 AVX_OBJS += NNPACK/build/src/x86_64-fma/2d-winograd-8x8-3x3.py.o
 AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/s8gemm.py.o
@@ -226,7 +232,7 @@ NEWS_OBJS += resnet18.a
 NEWS_OBJS += alexnet.a
 
 $(OBJ_DIR)/$(TARGET): $(OBJS) $(APP_O) arch_lib
-	$(LD) -r $(LDFLAGS) $(HEAD_OBJ) $(APP_O) $(OBJS) $(LDARCHLIB) $(NEWS_OBJS) $(LDLIBS) -o $@.o
+	$(LD) -r $(LDFLAGS) $(HEAD_OBJ) $(APP_O) $(OBJS) $(LDARCHLIB) $(AVX_OBJS) $(NEWS_OBJS) $(LDLIBS) -o $@.o
 	$(OBJCOPY) -w -G $(GLOBAL_PREFIX)* -G _start $@.o $@.o
 	$(LD) $(LDFLAGS) $(LDFLAGS_FINAL) $@.o $(EXTRA_OBJS) -o $@
 	gzip -f -9 -c $@ >$@.gz
