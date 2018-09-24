@@ -211,8 +211,6 @@ APP_O=$(OBJ_DIR)/$(TARGET)_app.o
 endif
 
 AVX_OBJS := NNPACK/build/src/x86_64-fma/2d-fourier-8x8.py.o
-./extras/mini-os/NNPACK/build/CMakeFiles/nnpack.dir/src/x86_64-fma/softmax.c.o
-
 AVX_OBJS := NNPACK/build/src/x86_64-fma/2d-fourier-8x8.py.o
 AVX_OBJS += NNPACK/build/src/x86_64-fma/2d-fourier-16x16.py.o
 AVX_OBJS += NNPACK/build/src/x86_64-fma/2d-winograd-8x8-3x3.py.o
