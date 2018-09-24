@@ -122,18 +122,18 @@ src-y += NNPACK/src/convolution-inference.c
 src-y += NNPACK/src/fully-connected-inference.c
 
 ## NNPACK psimd
-src-y += NNPACK/src/psimd/2d-fourier-8x8.c
-src-y += NNPACK/src/psimd/2d-fourier-16x16.c
-src-y += NNPACK/src/psimd/2d-winograd-8x8-3x3.c
-src-y += NNPACK/src/psimd/blas/s4gemm.c
-src-y += NNPACK/src/psimd/blas/c4gemm-conjb.c
-src-y += NNPACK/src/psimd/blas/s4c2gemm-conjb.c
-src-y += NNPACK/src/psimd/blas/conv1x1.c
-src-y += NNPACK/src/psimd/blas/sgemm.c
-src-y += NNPACK/src/psimd/relu.c
-src-y += NNPACK/src/psimd/softmax.c
-src-y += NNPACK/src/psimd/blas/sdotxf.c
-src-y += NNPACK/src/psimd/blas/shdotxf.c
+# src-y += NNPACK/src/psimd/2d-fourier-8x8.c
+# src-y += NNPACK/src/psimd/2d-fourier-16x16.c
+# src-y += NNPACK/src/psimd/2d-winograd-8x8-3x3.c
+# src-y += NNPACK/src/psimd/blas/s4gemm.c
+# src-y += NNPACK/src/psimd/blas/c4gemm-conjb.c
+# src-y += NNPACK/src/psimd/blas/s4c2gemm-conjb.c
+# src-y += NNPACK/src/psimd/blas/conv1x1.c
+# src-y += NNPACK/src/psimd/blas/sgemm.c
+# src-y += NNPACK/src/psimd/relu.c
+# src-y += NNPACK/src/psimd/softmax.c
+# src-y += NNPACK/src/psimd/blas/sdotxf.c
+# src-y += NNPACK/src/psimd/blas/shdotxf.c
 
 ## NNPACK AVX
 src-y += NNPACK/src/x86_64-fma/softmax.c
