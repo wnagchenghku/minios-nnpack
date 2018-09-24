@@ -13,6 +13,7 @@
 #include <mini-os/4C8732DB_frontend.h> // squeezenet1_0
 #include <mini-os/2D24C20E_frontend.h> // resnet18
 #include <mini-os/264993A3_frontend.h> // alexnet
+#include <mini-os/C37828B0_frontend.h> // densenet121
 
 #define NNPFRONT_PRINT_DEBUG
 #ifdef NNPFRONT_PRINT_DEBUG
@@ -110,6 +111,10 @@ void init_nnpfront(void)
       total_item = sizeof(P264993A3_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P264993A3_frontend[i].param_size * sizeof(float);
+   } else if (strcmp(model, "densenet121") == 0) {
+      total_item = sizeof(PC37828B0_frontend) / sizeof(struct frontend_param);
+      for (i = 0; i < total_item; ++i)
+         total_bytes += PC37828B0_frontend[i].param_size * sizeof(float);
    }
 
    total_page = divide_round_up(total_bytes, PAGE_SIZE);
@@ -175,6 +180,8 @@ float *resolve_param_cb(void)
       param_read += P2D24C20E_frontend[param_it++].param_size;
    else if (strcmp(model, "alexnet") == 0)
       param_read += P264993A3_frontend[param_it++].param_size;
+   else if (strcmp(model, "densenet121") == 0)
+      param_read += PC37828B0_frontend[param_it++].param_size;
 
    return page + param_read;
 }
