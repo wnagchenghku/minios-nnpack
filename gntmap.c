@@ -273,7 +273,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
     rc = HYPERVISOR_grant_table_op(GNTTABOP_map_grant_ref, op, count);
     gettimeofday(&end, 0);
     e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
-    DEBUG("Fetching grant references takes %lu microseconds\n", e_usec);
+    DEBUG("(%lu microseconds)", e_usec);
 
     for (i = 0; i < count; ++i) {
         if (rc != 0 || op[i].status != GNTST_okay) {
