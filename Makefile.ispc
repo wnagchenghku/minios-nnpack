@@ -1,5 +1,6 @@
 # make -j
 ISPC=ispc
+ISPCFLAGS=-O0 --target=avx1-i32x8
 
 default: model.a
 
