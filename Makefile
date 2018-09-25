@@ -229,6 +229,7 @@ NEWS_OBJS := squeezenet1_0.a
 NEWS_OBJS += resnet18.a
 NEWS_OBJS += alexnet.a
 NEWS_OBJS += densenet121.a
+NEWS_OBJS += vgg11.a
 
 $(OBJ_DIR)/$(TARGET): $(OBJS) $(APP_O) arch_lib
 	$(LD) -r $(LDFLAGS) $(HEAD_OBJ) $(APP_O) $(OBJS) $(LDARCHLIB) $(AVX_OBJS) $(NEWS_OBJS) $(LDLIBS) -o $@.o
