@@ -158,7 +158,7 @@ void init_nnpfront(void)
 
 
    for (i = 0; i < total_page - 1; ++i) {
-      if (*(float*)((unsigned long)(void*)page + i * PAGE_SIZE) != 12.35 + i)
+      if (*(float*)((unsigned long)(void*)page + i * PAGE_SIZE) != (0.02 + i))
          NNPFRONT_ERR("mapped number does not match\n");
    }
 
