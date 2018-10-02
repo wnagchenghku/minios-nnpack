@@ -540,10 +540,13 @@ unsigned long allocate_ondemand(unsigned long n, unsigned long alignment)
     {
         unsigned long addr = demand_map_area_start + x * PAGE_SIZE;
         pgentry_t *pgt = get_pgt(addr);
+        if ( !pgt ) need_pgt(addr);
         for ( y = 0; y < n; y++, addr += PAGE_SIZE ) 
         {
-            if ( !(addr & L1_MASK) )
+            if ( !(addr & L1_MASK) ) {
                 pgt = get_pgt(addr);
+                if ( !pgt ) need_pgt(addr);
+            }
             if ( pgt )
             {
                 if ( *pgt & _PAGE_PRESENT )
