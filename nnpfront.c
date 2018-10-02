@@ -155,6 +155,13 @@ void init_nnpfront(void)
 
    free(grant_ref_ref);
    free(grant_ref);
+
+
+   for (i = 0; i < total_page - 1; ++i) {
+      if (*(float*)((unsigned long)(void*)page + i * PAGE_SIZE) != 12.35 + i)
+         NNPFRONT_ERR("mapped number does not match\n");
+   }
+
    NNPFRONT_LOG("Initialization Completed successfully\n");
 }
 
