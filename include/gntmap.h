@@ -3,6 +3,8 @@
 
 #include <os.h>
 
+enum ml_models {none, vgg11, alexnet};
+
 /*
  * Please consider struct gntmap opaque. If instead you choose to disregard
  * this message, I insist that you keep an eye out for raptors.
@@ -18,6 +20,9 @@ gntmap_set_max_grants(struct gntmap *map, int count);
 int
 gntmap_munmap(struct gntmap *map, unsigned long start_address, int count);
 
+int
+gntmap_munmap_batch(struct gntmap *map, unsigned long start_address, int count, int model);
+
 void*
 gntmap_map_grant_refs(struct gntmap *map, 
                       uint32_t count,
@@ -32,7 +37,8 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
                             uint32_t *domids,
                             int domids_stride,
                             uint32_t *refs,
-                            int writable);
+                            int writable,
+                            int model);
 
 void
 gntmap_init(struct gntmap *map);

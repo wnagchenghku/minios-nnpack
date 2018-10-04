@@ -42,7 +42,8 @@ static inline size_t divide_round_up(size_t dividend, size_t divisor) {
 }
 
 domid_t self_id;
-char *model = "squeezenet1_0";
+char *model_name = "alexnet";
+int model = alexnet;
 int total_page;
 float *page;
 void init_nnpfront(void)
@@ -79,7 +80,7 @@ void init_nnpfront(void)
 
    snprintf(path, 512, "%u", self_id);
 
-   if((err = xenbus_printf(XBT_NIL, "/local/domain/frontend", path, "%s", model))) {
+   if((err = xenbus_printf(XBT_NIL, "/local/domain/frontend", path, "%s", model_name))) {
       NNPFRONT_ERR("Unable to write to xenstore frontend id\n");
       free(err);
    }
@@ -100,23 +101,23 @@ void init_nnpfront(void)
    }
 
    total_bytes = 0;
-   if (strcmp(model, "squeezenet1_0") == 0) {
+   if (strcmp(model_name, "squeezenet1_0") == 0) {
       total_item = sizeof(P4C8732DB_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P4C8732DB_frontend[i].param_size * sizeof(float);
-   } else if (strcmp(model, "resnet18") == 0) {
+   } else if (strcmp(model_name, "resnet18") == 0) {
       total_item = sizeof(P2D24C20E_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P2D24C20E_frontend[i].param_size * sizeof(float);
-   } else if (strcmp(model, "alexnet") == 0) {
+   } else if (strcmp(model_name, "alexnet") == 0) {
       total_item = sizeof(P264993A3_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P264993A3_frontend[i].param_size * sizeof(float);
-   } else if (strcmp(model, "densenet121") == 0) {
+   } else if (strcmp(model_name, "densenet121") == 0) {
       total_item = sizeof(PC37828B0_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += PC37828B0_frontend[i].param_size * sizeof(float);
-   } else if (strcmp(model, "vgg11") == 0) {
+   } else if (strcmp(model_name, "vgg11") == 0) {
       total_item = sizeof(P6614F490_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P6614F490_frontend[i].param_size * sizeof(float);
@@ -140,7 +141,7 @@ void init_nnpfront(void)
       value_it += bytesread;
    }
 
-   if ((grant_ref_ref_page = (grant_ref_t*)gntmap_map_grant_refs_batch(&gtpmdev.map, total_grant_ref_ref_page, &bedomid, 0, grant_ref_ref, PROT_READ)) == NULL) {
+   if ((grant_ref_ref_page = (grant_ref_t*)gntmap_map_grant_refs(&gtpmdev.map, total_grant_ref_ref_page, &bedomid, 0, grant_ref_ref, PROT_READ)) == NULL) {
       NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
    }
 
@@ -149,18 +150,12 @@ void init_nnpfront(void)
 
    gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)grant_ref_ref_page, total_grant_ref_ref_page);
    
-   if ((page = gntmap_map_grant_refs_batch(&gtpmdev.map, total_page, &bedomid, 0, grant_ref, PROT_READ)) == NULL) {
+   if ((page = gntmap_map_grant_refs_batch(&gtpmdev.map, total_page, &bedomid, 0, grant_ref, PROT_READ, model)) == NULL) {
       NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
    }
 
    free(grant_ref_ref);
    free(grant_ref);
-
-
-   for (i = 0; i < total_page - 1; ++i) {
-      if (*(float*)((unsigned long)(void*)page + i * PAGE_SIZE) != (0.02 + i))
-         NNPFRONT_ERR("mapped number does not match\n");
-   }
 
    NNPFRONT_LOG("Initialization Completed successfully\n");
 }
@@ -169,7 +164,7 @@ void shutdown_nnpfront(void)
 {
    char *err;
    char path[512];
-   gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)page, total_page);
+   gntmap_munmap_batch(&gtpmdev.map, (unsigned long)(void*)page, total_page, model);
 
    snprintf(path, 512, "/local/domain/frontend/%u", self_id);
    if((err = xenbus_write(XBT_NIL, path, "close"))) {
@@ -186,15 +181,15 @@ float *resolve_param_cb(void)
       return page;
    }
    
-   if (strcmp(model, "squeezenet1_0") == 0)
+   if (strcmp(model_name, "squeezenet1_0") == 0)
       param_read += P4C8732DB_frontend[param_it++].param_size;
-   else if (strcmp(model, "resnet18") == 0)
+   else if (strcmp(model_name, "resnet18") == 0)
       param_read += P2D24C20E_frontend[param_it++].param_size;
-   else if (strcmp(model, "alexnet") == 0)
+   else if (strcmp(model_name, "alexnet") == 0)
       param_read += P264993A3_frontend[param_it++].param_size;
-   else if (strcmp(model, "densenet121") == 0)
+   else if (strcmp(model_name, "densenet121") == 0)
       param_read += PC37828B0_frontend[param_it++].param_size;
-   else if (strcmp(model, "vgg11") == 0)
+   else if (strcmp(model_name, "vgg11") == 0)
       param_read += P6614F490_frontend[param_it++].param_size;
 
    return page + param_read;

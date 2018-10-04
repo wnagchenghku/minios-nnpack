@@ -157,6 +157,35 @@ _gntmap_unmap_grant_ref(struct gntmap_entry *entry)
     return 0;
 }
 
+static int
+_gntmap_unmap_grant_ref_batch(struct gntmap_entry *entry, int model)
+{
+    struct gnttab_unmap_grant_ref op;
+    int rc;
+
+    op.host_addr    = (uint64_t) entry->host_addr;
+    op.dev_bus_addr = 0;
+    op.handle       = entry->handle;
+
+    switch (model) {
+        case alexnet:
+            rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_alexnet, &op, 1);
+            break;
+        default:
+            break;
+    }
+
+    if (rc != 0 || op.status != GNTST_okay) {
+        printk("GNTTABOP_unmap_alexnet failed: "
+               "returned %d, status %" PRId16 "\n",
+               rc, op.status);
+        return rc != 0 ? rc : op.status;
+    }
+
+    entry->host_addr = 0;
+    return 0;
+}
+
 int
 gntmap_munmap(struct gntmap *map, unsigned long start_address, int count)
 {
@@ -174,6 +203,30 @@ gntmap_munmap(struct gntmap *map, unsigned long start_address, int count)
         }
 
         rc = _gntmap_unmap_grant_ref(ent);
+        if (rc != 0)
+            return rc;
+    }
+
+    return 0;
+}
+
+int
+gntmap_munmap_batch(struct gntmap *map, unsigned long start_address, int count, int model)
+{
+    int i, rc;
+    struct gntmap_entry *ent;
+
+    DEBUG("(map=%p, start_address=%lx, count=%d)",
+           map, start_address, count);
+
+    for (i = 0; i < count; i++) {
+        ent = gntmap_find_entry(map, start_address + PAGE_SIZE * i);
+        if (ent == NULL) {
+            printk("gntmap: tried to munmap unknown page\n");
+            return -EINVAL;
+        }
+
+        rc = _gntmap_unmap_grant_ref_batch(ent, model);
         if (rc != 0)
             return rc;
     }
@@ -229,7 +282,8 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
                            uint32_t *domids,
                            int domids_stride,
                            uint32_t *refs,
-                           int writable)
+                           int writable,
+                           int model)
 {
     unsigned long addr;
     struct gntmap_entry *ent;
@@ -269,17 +323,23 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
     }
 
     gettimeofday(&start, 0);
-    rc = HYPERVISOR_grant_table_op(GNTTABOP_map_grant_ref, op, count);
+    switch(model) {
+        case alexnet:
+            rc = HYPERVISOR_grant_table_op(GNTTABOP_map_alexnet, op, count);
+            break;
+        default:
+            break;
+    }
     gettimeofday(&end, 0);
     e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
     DEBUG("(%lu microseconds)", e_usec);
 
     for (i = 0; i < count; ++i) {
         if (rc != 0 || op[i].status != GNTST_okay) {
-            printk("GNTTABOP_map_grant_ref failed: "
+            /*printk("GNTTABOP_map_grant_ref failed: "
                    "returned %d, status %" PRId16 "\n",
                    rc, op[i].status);
-            return NULL;
+            return NULL;*/
         }
     }
 
