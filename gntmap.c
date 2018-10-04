@@ -247,9 +247,13 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
     (void) gntmap_set_max_grants(map, DEFAULT_MAX_GRANTS);
 
+    gettimeofday(&start, 0);
     addr = allocate_ondemand((unsigned long) count, 1);
     if (addr == 0)
         return NULL;
+    gettimeofday(&end, 0);
+    e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
+    DEBUG("(allocate_ondemand takes %lu microseconds)", e_usec);
 
     op = (struct gnttab_map_grant_ref *)malloc(sizeof(struct gnttab_map_grant_ref) * count);
 
@@ -272,7 +276,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
     rc = HYPERVISOR_grant_table_op(GNTTABOP_map_grant_ref, op, count);
     gettimeofday(&end, 0);
     e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
-    DEBUG("(%lu microseconds)", e_usec);
+    DEBUG("(HYPERVISOR_grant_table_op takes %lu microseconds)", e_usec);
 
     for (i = 0; i < count; ++i) {
         if (rc != 0 || op[i].status != GNTST_okay) {
