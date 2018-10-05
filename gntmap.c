@@ -249,6 +249,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
     gettimeofday(&start, 0);
     addr = allocate_ondemand((unsigned long) count, 1);
+    // addr = (unsigned long)mmap(NULL, count * PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, -1, 0);
     if (addr == 0)
         return NULL;
     gettimeofday(&end, 0);
