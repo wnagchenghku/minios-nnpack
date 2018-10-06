@@ -43,7 +43,8 @@ static inline size_t divide_round_up(size_t dividend, size_t divisor) {
 
 domid_t self_id;
 char *model_name = "alexnet";
-int model = alexnet;
+int model;
+
 int total_page;
 float *page;
 void init_nnpfront(void)
@@ -113,6 +114,7 @@ void init_nnpfront(void)
       total_item = sizeof(P264993A3_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P264993A3_frontend[i].param_size * sizeof(float);
+      model = alexnet;
    } else if (strcmp(model_name, "densenet121") == 0) {
       total_item = sizeof(PC37828B0_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)

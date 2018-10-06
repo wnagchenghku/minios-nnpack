@@ -167,13 +167,9 @@ _gntmap_unmap_grant_ref_batch(struct gntmap_entry *entry, int model)
     op.dev_bus_addr = 0;
     op.handle       = entry->handle;
 
-    switch (model) {
-        case alexnet:
-            rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_alexnet, &op, 1);
-            break;
-        default:
-            break;
-    }
+    op.status = model;
+
+    rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_model, &op, 1);
 
     if (rc != 0 || op.status != GNTST_okay) {
         printk("GNTTABOP_unmap_alexnet failed: "
@@ -320,6 +316,9 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
         op[i].dom = (domid_t)domids[i * domids_stride];
         op[i].host_addr = (uint64_t) addr + PAGE_SIZE * i;
         op[i].flags = GNTMAP_host_map;
+
+        op[i].status = model;
+
         if (!writable)
             op[i].flags |= GNTMAP_readonly;
 
@@ -327,13 +326,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
     }
 
     gettimeofday(&start, 0);
-    switch(model) {
-        case alexnet:
-            rc = HYPERVISOR_grant_table_op(GNTTABOP_map_alexnet, op, count);
-            break;
-        default:
-            break;
-    }
+    rc = HYPERVISOR_grant_table_op(GNTTABOP_map_model, op, count);
     gettimeofday(&end, 0);
     e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
     DEBUG("(HYPERVISOR_grant_table_op takes %lu microseconds)", e_usec);
