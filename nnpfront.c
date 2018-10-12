@@ -106,10 +106,12 @@ void init_nnpfront(void)
       total_item = sizeof(P4C8732DB_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P4C8732DB_frontend[i].param_size * sizeof(float);
+      model = squeezenet1_0;
    } else if (strcmp(model_name, "resnet18") == 0) {
       total_item = sizeof(P2D24C20E_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P2D24C20E_frontend[i].param_size * sizeof(float);
+      model = resnet18;
    } else if (strcmp(model_name, "alexnet") == 0) {
       total_item = sizeof(P264993A3_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
@@ -119,10 +121,12 @@ void init_nnpfront(void)
       total_item = sizeof(PC37828B0_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += PC37828B0_frontend[i].param_size * sizeof(float);
+      model = densenet121;
    } else if (strcmp(model_name, "vgg11") == 0) {
       total_item = sizeof(P6614F490_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P6614F490_frontend[i].param_size * sizeof(float);
+      model = vgg11;
    }
 
    total_page = divide_round_up(total_bytes, PAGE_SIZE);
