@@ -150,7 +150,7 @@ void init_nnpfront(void)
       value_it += bytesread;
    }
 
-   if ((grant_ref_ref_page = (grant_ref_t*)gntmap_map_grant_refs_batch(&gtpmdev.map, total_grant_ref_ref_page, &bedomid, 0, grant_ref_ref, PROT_READ)) == NULL) {
+   if ((grant_ref_ref_page = (grant_ref_t*)gntmap_map_grant_refs(&gtpmdev.map, total_grant_ref_ref_page, &bedomid, 0, grant_ref_ref, PROT_READ)) == NULL) {
       NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
    }
 
