@@ -161,7 +161,7 @@ void init_nnpfront(void)
    free(grant_ref_ref);
    gettimeofday(&end, 0);
    e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
-   NNPFRONT_LOG("(xenstore takes %lu microseconds)", e_usec);
+   NNPFRONT_LOG("(xenstore takes %lu microseconds)\n", e_usec);
 #endif
    if ((page = gntmap_map_grant_refs_batch(&gtpmdev.map, total_page, &bedomid, 0, grant_ref, PROT_READ, model)) == NULL) {
       NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
