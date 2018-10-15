@@ -21,7 +21,7 @@ int
 gntmap_munmap(struct gntmap *map, unsigned long start_address, int count);
 
 int
-gntmap_munmap(struct gntmap *map, unsigned long start_address, int count, int model);
+gntmap_munmap_batch(struct gntmap *map, unsigned long start_address, int count, int model);
 
 void*
 gntmap_map_grant_refs(struct gntmap *map, 
