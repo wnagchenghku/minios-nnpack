@@ -39,6 +39,7 @@
 #include <mini-os/gntmap.h>
 #include <mini-os/posix/sys/mman.h>
 
+#define PUBLIC_GRANT
 // #define GNTMAP_DEBUG
 #ifdef GNTMAP_DEBUG
 #define DEBUG(_f, _a...) \
