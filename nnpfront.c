@@ -61,6 +61,10 @@ void init_nnpfront(void)
    int total_grant_ref_ref_page;
    grant_ref_t *grant_ref_ref_page;
    int v, bytesread;
+
+   struct timeval start, end;
+   unsigned long e_usec;
+   gettimeofday(&start, 0);
    
    self_id = xenbus_get_self_id();
 
@@ -155,6 +159,9 @@ void init_nnpfront(void)
 
    gntmap_munmap(&gtpmdev.map, (unsigned long)(void*)grant_ref_ref_page, total_grant_ref_ref_page);
    free(grant_ref_ref);
+   gettimeofday(&end, 0);
+   e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
+   NNPFRONT_LOG("(xenstore takes %lu microseconds)", e_usec);
 #endif
    if ((page = gntmap_map_grant_refs_batch(&gtpmdev.map, total_page, &bedomid, 0, grant_ref, PROT_READ, model)) == NULL) {
       NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
