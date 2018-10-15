@@ -39,7 +39,7 @@
 #include <mini-os/gntmap.h>
 #include <mini-os/posix/sys/mman.h>
 
-#define GNTMAP_DEBUG
+// #define GNTMAP_DEBUG
 #ifdef GNTMAP_DEBUG
 #define DEBUG(_f, _a...) \
     printk("MINI_OS(gntmap.c:%d): %s" _f "\n", __LINE__, __func__, ## _a)
@@ -307,7 +307,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
         return NULL;
     gettimeofday(&end, 0);
     e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
-    DEBUG("(allocate_ondemand takes %lu microseconds)", e_usec);
+    printk("(allocate_ondemand takes %lu microseconds)", e_usec);
 
     op = (struct gnttab_map_grant_ref *)malloc(sizeof(struct gnttab_map_grant_ref) * count);
 
@@ -337,7 +337,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 #endif
     gettimeofday(&end, 0);
     e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
-    DEBUG("(HYPERVISOR_grant_table_op takes %lu microseconds)", e_usec);
+    printk("(HYPERVISOR_grant_table_op takes %lu microseconds)", e_usec);
 
     for (i = 0; i < count; ++i) {
         if (rc != 0 || op[i].status != GNTST_okay) {

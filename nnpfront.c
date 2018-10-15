@@ -68,7 +68,7 @@ void init_nnpfront(void)
    
    self_id = xenbus_get_self_id();
 
-   printk("============= Init NNP Front ================\n");
+   // printk("============= Init NNP Front ================\n");
 
    /* Get backend domid */
    if((err = xenbus_read(XBT_NIL, "/local/domain/backend", &value))) {
@@ -96,7 +96,7 @@ void init_nnpfront(void)
       free(err);
    }
 
-   NNPFRONT_LOG("Waiting for backend to publish references..\n");
+   // NNPFRONT_LOG("Waiting for backend to publish references..\n");
    while(1) {
       int state = xenbus_read_integer(path);
       if(state == 1)
