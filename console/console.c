@@ -139,6 +139,14 @@ void print(int direct, const char *fmt, va_list args)
     }
 }
 
+void printk_measure(const char *fmt, ...)
+{
+    va_list       args;
+    va_start(args, fmt);
+    print(0, fmt, args);
+    va_end(args);        
+}
+
 void printk(const char *fmt, ...)
 {
     va_list       args;
