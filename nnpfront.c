@@ -96,7 +96,7 @@ void init_nnpfront(void)
       free(err);
    }
 
-   // NNPFRONT_LOG("Waiting for backend to publish references..\n");
+   NNPFRONT_LOG("Waiting for backend to publish references..\n");
    while(1) {
       int state = xenbus_read_integer(path);
       if(state == 1)
