@@ -91,6 +91,8 @@ void init_nnpfront(void)
 
    total_page = divide_round_up(total_bytes, PAGE_SIZE);
 
+   grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
+
 #ifndef FAST_MODE
    gettimeofday(&start, 0);
    
@@ -131,8 +133,6 @@ void init_nnpfront(void)
          break;
        xenbus_wait_for_watch(&events);
    }
-   
-   grant_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_page);
 
    total_grant_ref_ref_page = divide_round_up(total_page * sizeof(grant_ref_t), PAGE_SIZE);
    grant_ref_ref = (grant_ref_t*)malloc(sizeof(grant_ref_t) * total_grant_ref_ref_page);
