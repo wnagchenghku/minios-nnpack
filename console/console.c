@@ -44,6 +44,8 @@
 #include <mini-os/xenbus.h>
 #include <xen/io/console.h>
 
+#include <mini-os/boot_measure.h>
+
 
 /* Copies all print output to the Xen emergency console apart
    of standard dom0 handled console */

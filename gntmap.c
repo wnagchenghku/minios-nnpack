@@ -39,6 +39,8 @@
 #include <mini-os/gntmap.h>
 #include <mini-os/posix/sys/mman.h>
 
+#include <mini-os/boot_measure.h>
+
 #define PUBLIC_GRANT
 // #define GNTMAP_DEBUG
 #ifdef GNTMAP_DEBUG
@@ -312,7 +314,6 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
     op = (struct gnttab_map_grant_ref *)malloc(sizeof(struct gnttab_map_grant_ref) * count);
 
-#ifndef FAST_MODE
     for (i = 0; i < count; i++) {
         ent = gntmap_find_free_entry(map);
         if (ent == NULL)
@@ -330,7 +331,6 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
         ent->host_addr = (uint64_t) addr + PAGE_SIZE * i;
     }
-#endif
 
 #ifndef BOOT_MEASURE
     gettimeofday(&start, 0);
