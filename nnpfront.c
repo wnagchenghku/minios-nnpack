@@ -16,7 +16,6 @@
 #include <mini-os/C37828B0_frontend.h> // densenet121
 #include <mini-os/6614F490_frontend.h> // vgg11
 
-// #define FAST_MODE
 #define NNPFRONT_PRINT_DEBUG
 #ifdef NNPFRONT_PRINT_DEBUG
 #define NNPFRONT_DEBUG(fmt,...) printk("Nnpfront:Debug("__FILE__":%d) " fmt, __LINE__, ##__VA_ARGS__)

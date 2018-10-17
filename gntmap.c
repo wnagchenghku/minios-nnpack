@@ -41,7 +41,6 @@
 
 #include <mini-os/boot_measure.h>
 
-#define PUBLIC_GRANT
 // #define GNTMAP_DEBUG
 #ifdef GNTMAP_DEBUG
 #define DEBUG(_f, _a...) \
@@ -216,19 +215,23 @@ int
 gntmap_munmap_batch(struct gntmap *map, unsigned long start_address, int count, int model)
 {
     int i, rc;
-    struct gntmap_entry *ent;
+    struct gntmap_entry *ent, ent_tmp;
 
     DEBUG("(map=%p, start_address=%lx, count=%d)",
            map, start_address, count);
 
     for (i = 0; i < count; i++) {
+#ifndef FAST_MODE
         ent = gntmap_find_entry(map, start_address + PAGE_SIZE * i);
         if (ent == NULL) {
             printk("gntmap: tried to munmap unknown page\n");
             return -EINVAL;
         }
-
         rc = _gntmap_unmap_grant_ref_batch(ent, model);
+#else
+        ent_tmp.host_addr = start_address + PAGE_SIZE * i;
+        rc = _gntmap_unmap_grant_ref_batch(&ent_tmp, model);
+#endif  
         if (rc != 0)
             return rc;
     }
@@ -314,6 +317,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
     op = (struct gnttab_map_grant_ref *)malloc(sizeof(struct gnttab_map_grant_ref) * count);
 
+#ifndef FAST_MODE
     for (i = 0; i < count; i++) {
         ent = gntmap_find_free_entry(map);
         if (ent == NULL)
@@ -331,6 +335,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
         ent->host_addr = (uint64_t) addr + PAGE_SIZE * i;
     }
+#endif
 
 #ifndef BOOT_MEASURE
     gettimeofday(&start, 0);
@@ -348,6 +353,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
     printk("MINI_OS(gntmap.c): (HYPERVISOR_grant_table_op takes %lu microseconds)\n", e_usec);
 #endif
 
+#ifndef FAST_MODE
     for (i = 0; i < count; ++i) {
         if (rc != 0 || op[i].status != GNTST_okay) {
             /*printk("HYPERVISOR_grant_table_op failed: "
@@ -361,7 +367,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
         ent = gntmap_find_entry(map, op[i].host_addr);
         ent->handle = op[i].handle;
     }
-
+#endif
     return (void*) addr;
 }
 

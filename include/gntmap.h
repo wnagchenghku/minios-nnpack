@@ -3,6 +3,8 @@
 
 #include <os.h>
 
+// #define FAST_MODE
+#define PUBLIC_GRANT
 enum ml_models {none, squeezenet1_0, resnet18, alexnet, densenet121, vgg11};
 
 /*
