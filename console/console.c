@@ -139,15 +139,12 @@ void print(int direct, const char *fmt, va_list args)
     }
 }
 
-// #define PRINT_DEBUG_INFO
 void printk(const char *fmt, ...)
 {
-#ifdef PRINT_DEBUG_INFO
     va_list       args;
     va_start(args, fmt);
     print(0, fmt, args);
-    va_end(args);
-#endif        
+    va_end(args);        
 }
 
 void xprintk(const char *fmt, ...)
