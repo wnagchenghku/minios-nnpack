@@ -42,7 +42,7 @@ static inline size_t divide_round_up(size_t dividend, size_t divisor) {
 }
 
 domid_t self_id;
-char *model_name = "alexnet";
+char *model_name = "vgg11";
 int model;
 int total_page;
 float *page;

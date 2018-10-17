@@ -225,10 +225,10 @@ AVX_OBJS += NNPACK/build/src/x86_64-fma/softmax.py.o
 AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/sdotxf.py.o
 AVX_OBJS += NNPACK/build/src/x86_64-fma/blas/shdotxf.py.o
 
-NEWS_OBJS := squeezenet1_0.a
-NEWS_OBJS += resnet18.a
-NEWS_OBJS += alexnet.a
-NEWS_OBJS += densenet121.a
+#NEWS_OBJS := squeezenet1_0.a
+#NEWS_OBJS += resnet18.a
+#NEWS_OBJS += alexnet.a
+#NEWS_OBJS += densenet121.a
 NEWS_OBJS += vgg11.a
 
 $(OBJ_DIR)/$(TARGET): $(OBJS) $(APP_O) arch_lib
