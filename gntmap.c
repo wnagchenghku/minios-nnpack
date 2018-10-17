@@ -335,6 +335,8 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
         ent->host_addr = (uint64_t) addr + PAGE_SIZE * i;
     }
+#else
+    op[0].status = model;
 #endif
 
 #ifndef BOOT_MEASURE
