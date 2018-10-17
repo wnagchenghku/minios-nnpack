@@ -81,17 +81,17 @@ void init_nnpfront(void)
       total_item = sizeof(P264993A3_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P264993A3_frontend[i].param_size * sizeof(float);
-      mode = alexnet;
+      model = alexnet;
    } else if (strcmp(model_name, "densenet121") == 0) {
       total_item = sizeof(PC37828B0_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += PC37828B0_frontend[i].param_size * sizeof(float);
-      mode = densenet121;
+      model = densenet121;
    } else if (strcmp(model_name, "vgg11") == 0) {
       total_item = sizeof(P6614F490_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P6614F490_frontend[i].param_size * sizeof(float);
-      mode = vgg11;
+      model = vgg11;
    }
 
    total_page = divide_round_up(total_bytes, PAGE_SIZE);
