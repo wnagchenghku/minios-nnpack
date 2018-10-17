@@ -48,16 +48,17 @@ int total_page;
 float *page;
 void init_nnpfront(void)
 {
-   char path[512];
-   char* value, *err;
-   unsigned long long ival;
    uint32_t bedomid;
+   grant_ref_t *grant_ref, *grant_ref_ref;
+#if 1
+   char entry_path[64];
    char *entry_value, *value_it;
    xenbus_event_queue events = NULL;
    int total_item, total_bytes, i, j = 0;
-   char entry_path[64];
-   grant_ref_t *grant_ref, *grant_ref_ref;
-#if 1
+   char path[512];
+   char* value, *err;
+   unsigned long long ival;
+
    int total_grant_ref_ref_page;
    grant_ref_t *grant_ref_ref_page;
    int v, bytesread;
@@ -109,27 +110,22 @@ void init_nnpfront(void)
       total_item = sizeof(P4C8732DB_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P4C8732DB_frontend[i].param_size * sizeof(float);
-      model = squeezenet1_0;
    } else if (strcmp(model_name, "resnet18") == 0) {
       total_item = sizeof(P2D24C20E_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P2D24C20E_frontend[i].param_size * sizeof(float);
-      model = resnet18;
    } else if (strcmp(model_name, "alexnet") == 0) {
       total_item = sizeof(P264993A3_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P264993A3_frontend[i].param_size * sizeof(float);
-      model = alexnet;
    } else if (strcmp(model_name, "densenet121") == 0) {
       total_item = sizeof(PC37828B0_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += PC37828B0_frontend[i].param_size * sizeof(float);
-      model = densenet121;
    } else if (strcmp(model_name, "vgg11") == 0) {
       total_item = sizeof(P6614F490_frontend) / sizeof(struct frontend_param);
       for (i = 0; i < total_item; ++i)
          total_bytes += P6614F490_frontend[i].param_size * sizeof(float);
-      model = vgg11;
    }
 
    total_page = divide_round_up(total_bytes, PAGE_SIZE);
@@ -163,6 +159,18 @@ void init_nnpfront(void)
    e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
    NNPFRONT_LOG("(xenstore takes %lu microseconds)\n", e_usec);
 #endif
+   if (strcmp(model_name, "squeezenet1_0") == 0) {
+      model = squeezenet1_0;
+   } else if (strcmp(model_name, "resnet18") == 0) {
+      model = resnet18;
+   } else if (strcmp(model_name, "alexnet") == 0) {
+      model = alexnet;
+   } else if (strcmp(model_name, "densenet121") == 0) {
+      model = densenet121;
+   } else if (strcmp(model_name, "vgg11") == 0) {
+      model = vgg11;
+   }
+
    if ((page = gntmap_map_grant_refs_batch(&gtpmdev.map, total_page, &bedomid, 0, grant_ref, PROT_READ, model)) == NULL) {
       NNPFRONT_ERR("Failed to map grant reference %u\n", (unsigned int) bedomid);
    }

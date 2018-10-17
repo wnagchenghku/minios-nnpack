@@ -18,6 +18,7 @@
 #include <mini-os/lib.h>
 
 #include <mini-os/nnpfront.h>
+#include <boot_measure.h>
 
 // extern int main(int argc, char *argv[], char *envp[]);
 extern int main(void* resolve_param_cb);
@@ -47,6 +48,7 @@ extern char __app_bss_start, __app_bss_end;
 static void call_main(void *p)
 {
     char *c, quote;
+    uint64_t ticks;
 #ifdef CONFIG_QEMU_XS_ARGS
     char *domargs, *msg;
 #endif
@@ -164,6 +166,10 @@ static void call_main(void *p)
     tzset();
 
     init_nnpfront();
+
+    HRT_GET_TIMESTAMP(t2);
+    HRT_GET_ELAPSED_TICKS(t1, t2, &ticks);
+    printk_measure("boot time = %lu ticks\n", ticks);
 
     // exit(main(argc, argv, envp));
     exit(main(&resolve_param_cb));

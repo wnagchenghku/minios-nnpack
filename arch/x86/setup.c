@@ -31,6 +31,8 @@
 #include <mini-os/kernel.h>
 #include <xen/xen.h>
 
+#include "boot_measure.h"
+
 #define CPU_FEATURE_FPU			(1 << 0)
 #define CPU_FEATURE_PSE			(1 << 3)
 #define CPU_FEATURE_MSR			(1 << 5)
@@ -436,6 +438,8 @@ void
 arch_init(start_info_t *si)
 {
 	static char hello[] = "Bootstrapping...\n";
+
+	HRT_GET_TIMESTAMP(t1);
 
 	(void)HYPERVISOR_console_io(CONSOLEIO_write, strlen(hello), hello);
 
