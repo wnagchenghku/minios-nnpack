@@ -182,12 +182,13 @@ void shutdown_nnpfront(void)
    char path[512];
 
    gntmap_munmap_batch(&gtpmdev.map, (unsigned long)(void*)page, total_page, model);
-
+#ifndef FAST_MODE
    snprintf(path, 512, "/local/domain/frontend/%u", self_id);
    if((err = xenbus_write(XBT_NIL, path, "close"))) {
       NNPFRONT_ERR("Unable to write to xenstore closing state\n");
       free(err);
    }
+#endif
 }
 
 float *resolve_param_cb(void)
