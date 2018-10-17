@@ -1,6 +1,8 @@
 #ifndef _BOOT_MEASURE_
 #define _BOOT_MEASURE_
 
+// #define BOOT_MEASURE
+
 #define UINT32_T uint32_t
 #define UINT64_T uint64_t
 

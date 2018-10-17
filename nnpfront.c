@@ -50,7 +50,7 @@ void init_nnpfront(void)
 {
    uint32_t bedomid;
    grant_ref_t *grant_ref, *grant_ref_ref;
-#if 1
+#ifndef FAST_MODE
    char entry_path[64];
    char *entry_value, *value_it;
    xenbus_event_queue events = NULL;

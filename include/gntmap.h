@@ -4,6 +4,7 @@
 #include <os.h>
 
 enum ml_models {none, squeezenet1_0, resnet18, alexnet, densenet121, vgg11};
+// #define FAST_MODE
 
 /*
  * Please consider struct gntmap opaque. If instead you choose to disregard

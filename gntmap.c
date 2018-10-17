@@ -312,6 +312,7 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
     op = (struct gnttab_map_grant_ref *)malloc(sizeof(struct gnttab_map_grant_ref) * count);
 
+#ifndef FAST_MODE
     for (i = 0; i < count; i++) {
         ent = gntmap_find_free_entry(map);
         if (ent == NULL)
@@ -329,16 +330,23 @@ gntmap_map_grant_refs_batch(struct gntmap *map,
 
         ent->host_addr = (uint64_t) addr + PAGE_SIZE * i;
     }
+#endif
 
+#ifndef BOOT_MEASURE
     gettimeofday(&start, 0);
+#endif
+
 #ifdef PUBLIC_GRANT
     rc = HYPERVISOR_grant_table_op(GNTTABOP_map_model, op, count);
 #else
     rc = HYPERVISOR_grant_table_op(GNTTABOP_map_grant_ref, op, count);
 #endif
+
+#ifndef BOOT_MEASURE
     gettimeofday(&end, 0);
     e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
     printk("MINI_OS(gntmap.c): (HYPERVISOR_grant_table_op takes %lu microseconds)\n", e_usec);
+#endif
 
     for (i = 0; i < count; ++i) {
         if (rc != 0 || op[i].status != GNTST_okay) {

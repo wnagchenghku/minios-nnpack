@@ -149,10 +149,12 @@ void printk_measure(const char *fmt, ...)
 
 void printk(const char *fmt, ...)
 {
+#ifndef BOOT_MEASURE
     va_list       args;
     va_start(args, fmt);
     print(0, fmt, args);
     va_end(args);        
+#endif
 }
 
 void xprintk(const char *fmt, ...)
